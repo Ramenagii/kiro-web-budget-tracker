@@ -31,3 +31,18 @@ export interface TransactionFilters {
   sortBy: 'date' | 'amount';
   sortOrder: 'asc' | 'desc';
 }
+
+export interface BudgetGoal {
+  id: string;
+  category: Category | 'overall';
+  monthlyLimit: number;
+  createdAt: string;
+}
+
+export interface MonthlyStats {
+  month: string;
+  totalIncome: number;
+  totalExpenses: number;
+  netSavings: number;
+  categoryBreakdown: Record<string, number>;
+}
