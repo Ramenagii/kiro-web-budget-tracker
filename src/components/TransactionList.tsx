@@ -25,11 +25,6 @@ const itemVariants = {
     y: 0,
     transition: { type: "spring", stiffness: 100, damping: 20 },
   },
-  exit: {
-    opacity: 0,
-    x: -20,
-    transition: { type: "spring", stiffness: 100, damping: 20 },
-  },
 };
 
 export default function TransactionList({
@@ -104,7 +99,7 @@ export default function TransactionList({
               key={transaction.id}
               layout
               variants={itemVariants}
-              exit="exit"
+              exit={{ opacity: 0, x: -20, transition: { type: "spring", stiffness: 100, damping: 20 } }}
               whileHover={{ scale: 1.01 }}
               transition={{ type: "spring", stiffness: 100, damping: 20 }}
               className="flex items-center justify-between py-3 first:pt-0 last:pb-0"

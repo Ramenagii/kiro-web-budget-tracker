@@ -31,33 +31,33 @@ function LoadingSkeleton() {
     <div className="min-h-[100dvh] bg-zinc-50">
       <div className="border-b border-zinc-200 bg-white/80 backdrop-blur-md">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="h-8 w-48 bg-zinc-200 rounded-lg animate-pulse" />
-          <div className="h-4 w-72 bg-zinc-100 rounded mt-2 animate-pulse" />
+          <div className="h-8 w-48 rounded-lg animate-shimmer" />
+          <div className="h-4 w-72 rounded mt-2 animate-shimmer" />
         </div>
       </div>
       <main className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          <div className="rounded-2xl bg-white/60 p-6 h-32 animate-pulse">
-            <div className="h-4 w-24 bg-zinc-200 rounded mb-3" />
-            <div className="h-10 w-40 bg-zinc-100 rounded" />
+          <div className="rounded-2xl bg-white/60 p-6 h-32">
+            <div className="h-4 w-24 rounded mb-3 animate-shimmer" />
+            <div className="h-10 w-40 rounded animate-shimmer" />
           </div>
           <div className="flex flex-col gap-4">
-            <div className="rounded-2xl bg-white/60 p-5 animate-pulse">
-              <div className="h-4 w-24 bg-zinc-200 rounded mb-2" />
-              <div className="h-8 w-32 bg-zinc-100 rounded" />
+            <div className="rounded-2xl bg-white/60 p-5">
+              <div className="h-4 w-24 rounded mb-2 animate-shimmer" />
+              <div className="h-8 w-32 rounded animate-shimmer" />
             </div>
-            <div className="rounded-2xl bg-white/60 p-5 animate-pulse">
-              <div className="h-4 w-24 bg-zinc-200 rounded mb-2" />
-              <div className="h-8 w-32 bg-zinc-100 rounded" />
+            <div className="rounded-2xl bg-white/60 p-5">
+              <div className="h-4 w-24 rounded mb-2 animate-shimmer" />
+              <div className="h-8 w-32 rounded animate-shimmer" />
             </div>
           </div>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1 space-y-8">
-            <div className="rounded-2xl bg-white/60 p-5 h-96 animate-pulse" />
+            <div className="rounded-2xl bg-white/60 p-5 h-96 animate-shimmer" />
           </div>
           <div className="lg:col-span-2">
-            <div className="rounded-2xl bg-white/60 p-5 h-96 animate-pulse" />
+            <div className="rounded-2xl bg-white/60 p-5 h-96 animate-shimmer" />
           </div>
         </div>
       </main>
