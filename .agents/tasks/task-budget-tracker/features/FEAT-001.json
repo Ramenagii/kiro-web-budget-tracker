@@ -1,0 +1,48 @@
+{
+  "id": "FEAT-001",
+  "type": "feat",
+  "description": "Create complete Next.js Personal Budget Tracker application manually (all source files, configs, package.json) since npm registry is not accessible in this sandbox. The code must be correct and buildable so that Vercel can install deps and build successfully on push.",
+  "status": "in_progress",
+  "steps": [
+    "Create feature branch: git checkout -b feat/budget-tracker",
+    "Create package.json with next@14, react@18, react-dom@18, typescript, tailwindcss, postcss, autoprefixer, eslint, eslint-config-next as dependencies/devDependencies. Include scripts: dev, build, start, lint.",
+    "Create next.config.mjs (or next.config.js) with minimal Next.js 14 config",
+    "Create tsconfig.json with Next.js-compatible TypeScript config (paths alias @/* -> ./src/*)",
+    "Create tailwind.config.ts with content paths for ./src/**/*.{ts,tsx}",
+    "Create postcss.config.mjs with tailwindcss and autoprefixer plugins",
+    "Create .eslintrc.json extending next/core-web-vitals",
+    "Create src/app/globals.css with @tailwind base; @tailwind components; @tailwind utilities;",
+    "Create src/app/layout.tsx - root layout with metadata (title: Budget Tracker, description), Inter font from next/font/google, semantic HTML",
+    "Create src/types/index.ts with Transaction interface {id: string, type: 'income'|'expense', amount: number, category: string, description: string, date: string} and CATEGORIES constant array",
+    "Create src/components/Header.tsx - app header with title and indigo/purple styling",
+    "Create src/components/BalanceSummary.tsx - shows total income, total expenses, net balance with color coding (green positive, red negative), card-based design",
+    "Create src/components/TransactionForm.tsx - controlled form with type toggle, amount, category dropdown, description, date inputs. Validates amount > 0 and category selected before calling onAddTransaction callback",
+    "Create src/components/TransactionList.tsx - renders transaction list with delete button per item, color-coded amounts, shows all transaction details",
+    "Create src/components/CategoryBreakdown.tsx - expense breakdown by category with progress bars showing relative spending",
+    "Create src/app/page.tsx - 'use client' main page composing all components, manages state with useState, loads/saves localStorage with useEffect, responsive grid layout",
+    "Create .gitignore with standard Next.js ignores (node_modules, .next, out, etc.)",
+    "Validate TypeScript syntax of all .ts/.tsx files using Node.js parser (since tsc is not installed)",
+    "Git add all files and commit on feat/budget-tracker branch"
+  ],
+  "acceptance_criteria": [
+    "All required files exist with correct TypeScript/JSX syntax",
+    "package.json has correct dependencies for Next.js 14 + React 18 + Tailwind CSS + TypeScript",
+    "All component files exist in src/components/: Header.tsx, BalanceSummary.tsx, TransactionForm.tsx, TransactionList.tsx, CategoryBreakdown.tsx",
+    "src/types/index.ts defines Transaction type and CATEGORIES array",
+    "localStorage persistence logic in page.tsx (read on mount, write on change)",
+    "Form validates amount > 0 and category selection",
+    "Balance color-coded green/red",
+    "Responsive mobile-first layout using Tailwind classes",
+    "Semantic HTML used (header, main, section, article)",
+    "Categories include: Food, Transport, Entertainment, Bills, Shopping, Health, Other",
+    "All code committed on feat/budget-tracker branch",
+    "TypeScript syntax validates correctly"
+  ],
+  "verification": [
+    "Check all files exist with correct structure",
+    "Validate TypeScript/JSX syntax using Node.js parser on all .ts/.tsx files",
+    "Verify git log shows commit on feat/budget-tracker branch"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

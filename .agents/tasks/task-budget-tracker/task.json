@@ -1,0 +1,7 @@
+{
+  "task_id": "task-budget-tracker",
+  "task_description": "Build a complete Personal Budget Tracker web application from scratch using Next.js 14+ (App Router), TypeScript, and Tailwind CSS. The app allows users to add/delete income and expense transactions, view balance, see category breakdown, with all data persisted in localStorage. Deployed-ready with Vercel.",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001"],
+  "blocked_reason": null
+}
