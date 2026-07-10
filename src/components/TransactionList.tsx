@@ -39,17 +39,27 @@ function InlineEditForm({
   onSave: (updates: Partial<Transaction>) => void;
   onCancel: () => void;
 }) {
+  const [type, setType] = useState<"income" | "expense">(transaction.type);
   const [amount, setAmount] = useState(transaction.amount.toString());
   const [description, setDescription] = useState(transaction.description);
   const [category, setCategory] = useState<string>(transaction.category);
   const [date, setDate] = useState(transaction.date);
+  const [error, setError] = useState("");
 
   const handleSave = () => {
+    setError("");
     const parsedAmount = parseFloat(amount);
-    if (!parsedAmount || parsedAmount <= 0) return;
-    if (!category) return;
+    if (!parsedAmount || parsedAmount <= 0) {
+      setError("Enter a valid amount");
+      return;
+    }
+    if (!category) {
+      setError("Select a category");
+      return;
+    }
 
     onSave({
+      type,
       amount: parsedAmount,
       description: description.trim(),
       category: category as Category,
@@ -65,6 +75,37 @@ function InlineEditForm({
       transition={{ type: "spring", stiffness: 100, damping: 20 }}
       className="flex flex-col gap-2 py-3"
     >
+      {/* Type Toggle */}
+      <div
+        className="flex rounded-lg overflow-hidden border border-zinc-200"
+        role="group"
+        aria-label="Transaction type"
+      >
+        <button
+          type="button"
+          onClick={() => setType("income")}
+          aria-pressed={type === "income"}
+          className={`flex-1 py-1.5 text-xs font-medium transition-colors ${
+            type === "income"
+              ? "bg-emerald-500 text-white"
+              : "bg-zinc-50 text-zinc-600 hover:bg-zinc-100"
+          }`}
+        >
+          Income
+        </button>
+        <button
+          type="button"
+          onClick={() => setType("expense")}
+          aria-pressed={type === "expense"}
+          className={`flex-1 py-1.5 text-xs font-medium transition-colors ${
+            type === "expense"
+              ? "bg-red-500 text-white"
+              : "bg-zinc-50 text-zinc-600 hover:bg-zinc-100"
+          }`}
+        >
+          Expense
+        </button>
+      </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         <input
           type="number"
@@ -104,6 +145,11 @@ function InlineEditForm({
           aria-label="Edit date"
         />
       </div>
+      {error && (
+        <p className="text-xs text-red-600" role="alert">
+          {error}
+        </p>
+      )}
       <div className="flex gap-2">
         <motion.button
           type="button"

@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Transaction, TransactionFilters as FiltersType, BudgetGoal, MonthlyStats, CATEGORIES } from "@/types";
+import { generateId } from "@/lib/utils";
 import Header from "@/components/Header";
 import BalanceSummary from "@/components/BalanceSummary";
 import TransactionForm from "@/components/TransactionForm";
@@ -54,21 +55,6 @@ function isValidBudgetGoal(entry: unknown): entry is BudgetGoal {
     obj.monthlyLimit > 0 &&
     typeof obj.createdAt === "string"
   );
-}
-
-function generateId(): string {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-    return crypto.randomUUID();
-  }
-  if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
-    const bytes = new Uint8Array(16);
-    crypto.getRandomValues(bytes);
-    bytes[6] = (bytes[6] & 0x0f) | 0x40;
-    bytes[8] = (bytes[8] & 0x3f) | 0x80;
-    const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
-    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
-  }
-  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 11)}`;
 }
 
 function addInterval(dateStr: string, interval: "weekly" | "biweekly" | "monthly"): string {
@@ -245,9 +231,11 @@ export default function Home() {
         return t.date > latest ? t.date : latest;
       }, recurring.date);
 
-      // Generate new transactions up to today
+      // Generate new transactions up to today, capped at 50 per recurring entry
+      const MAX_GENERATED_PER_RECURRING = 50;
+      let generated = 0;
       let nextDate = addInterval(latestDate, recurring.recurringInterval);
-      while (nextDate <= today) {
+      while (nextDate <= today && generated < MAX_GENERATED_PER_RECURRING) {
         // Check if this date already has a transaction
         const exists = [...transactions, ...newTransactions].some(
           (t) =>
@@ -270,6 +258,7 @@ export default function Home() {
             recurringInterval: recurring.recurringInterval,
           });
         }
+        generated++;
         nextDate = addInterval(nextDate, recurring.recurringInterval);
       }
     }

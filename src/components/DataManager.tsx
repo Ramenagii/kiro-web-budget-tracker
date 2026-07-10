@@ -3,17 +3,11 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Transaction, CATEGORIES, Category } from "@/types";
+import { generateId } from "@/lib/utils";
 
 interface DataManagerProps {
   transactions: Transaction[];
   onImport: (transactions: Transaction[]) => void;
-}
-
-function generateId(): string {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-    return crypto.randomUUID();
-  }
-  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 11)}`;
 }
 
 function escapeCSV(value: string): string {
