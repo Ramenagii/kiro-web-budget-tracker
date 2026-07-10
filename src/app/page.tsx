@@ -1,15 +1,25 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Transaction, CATEGORIES } from "@/types";
+import { Transaction, TransactionFilters as FiltersType, CATEGORIES } from "@/types";
 import Header from "@/components/Header";
 import BalanceSummary from "@/components/BalanceSummary";
 import TransactionForm from "@/components/TransactionForm";
 import TransactionList from "@/components/TransactionList";
+import TransactionFilters from "@/components/TransactionFilters";
 import CategoryBreakdown from "@/components/CategoryBreakdown";
 
 const STORAGE_KEY = "budget-tracker-transactions";
+
+const defaultFilters: FiltersType = {
+  searchQuery: "",
+  categoryFilter: "all",
+  typeFilter: "all",
+  dateRange: null,
+  sortBy: "date",
+  sortOrder: "desc",
+};
 
 function isValidTransaction(entry: unknown): entry is Transaction {
   if (typeof entry !== "object" || entry === null) return false;
@@ -24,6 +34,37 @@ function isValidTransaction(entry: unknown): entry is Transaction {
     typeof obj.description === "string" &&
     typeof obj.date === "string"
   );
+}
+
+function generateId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+    const bytes = new Uint8Array(16);
+    crypto.getRandomValues(bytes);
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+  }
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 11)}`;
+}
+
+function addInterval(dateStr: string, interval: "weekly" | "biweekly" | "monthly"): string {
+  const date = new Date(dateStr);
+  switch (interval) {
+    case "weekly":
+      date.setDate(date.getDate() + 7);
+      break;
+    case "biweekly":
+      date.setDate(date.getDate() + 14);
+      break;
+    case "monthly":
+      date.setMonth(date.getMonth() + 1);
+      break;
+  }
+  return date.toISOString().split("T")[0];
 }
 
 function LoadingSkeleton() {
@@ -68,6 +109,7 @@ function LoadingSkeleton() {
 export default function Home() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [filters, setFilters] = useState<FiltersType>(defaultFilters);
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -97,6 +139,117 @@ export default function Home() {
     }
   }, [transactions, isLoaded]);
 
+  // Recurring transaction auto-generation
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    const today = new Date().toISOString().split("T")[0];
+    const recurringTransactions = transactions.filter(
+      (t) => t.recurring && t.recurringInterval
+    );
+
+    if (recurringTransactions.length === 0) return;
+
+    const newTransactions: Transaction[] = [];
+
+    for (const recurring of recurringTransactions) {
+      if (!recurring.recurringInterval) continue;
+
+      // Find the latest transaction with the same description, category, amount, and type
+      const relatedTransactions = transactions.filter(
+        (t) =>
+          t.description === recurring.description &&
+          t.category === recurring.category &&
+          t.amount === recurring.amount &&
+          t.type === recurring.type
+      );
+
+      const latestDate = relatedTransactions.reduce((latest, t) => {
+        return t.date > latest ? t.date : latest;
+      }, recurring.date);
+
+      // Generate new transactions up to today
+      let nextDate = addInterval(latestDate, recurring.recurringInterval);
+      while (nextDate <= today) {
+        // Check if this date already has a transaction
+        const exists = [...transactions, ...newTransactions].some(
+          (t) =>
+            t.date === nextDate &&
+            t.description === recurring.description &&
+            t.category === recurring.category &&
+            t.amount === recurring.amount &&
+            t.type === recurring.type
+        );
+
+        if (!exists) {
+          newTransactions.push({
+            id: generateId(),
+            type: recurring.type,
+            amount: recurring.amount,
+            category: recurring.category,
+            description: recurring.description,
+            date: nextDate,
+            recurring: true,
+            recurringInterval: recurring.recurringInterval,
+          });
+        }
+        nextDate = addInterval(nextDate, recurring.recurringInterval);
+      }
+    }
+
+    if (newTransactions.length > 0) {
+      setTransactions((prev) => [...prev, ...newTransactions]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoaded]);
+
+  // Filtered and sorted transactions
+  const filteredTransactions = useMemo(() => {
+    let result = [...transactions];
+
+    // Search filter
+    if (filters.searchQuery) {
+      const query = filters.searchQuery.toLowerCase();
+      result = result.filter((t) =>
+        t.description.toLowerCase().includes(query)
+      );
+    }
+
+    // Category filter
+    if (filters.categoryFilter !== "all") {
+      result = result.filter((t) => t.category === filters.categoryFilter);
+    }
+
+    // Type filter
+    if (filters.typeFilter !== "all") {
+      result = result.filter((t) => t.type === filters.typeFilter);
+    }
+
+    // Date range filter
+    if (filters.dateRange) {
+      const { start, end } = filters.dateRange;
+      if (start) {
+        result = result.filter((t) => t.date >= start);
+      }
+      if (end) {
+        result = result.filter((t) => t.date <= end);
+      }
+    }
+
+    // Sort
+    result.sort((a, b) => {
+      let comparison = 0;
+      if (filters.sortBy === "date") {
+        comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
+      } else {
+        comparison = a.amount - b.amount;
+      }
+      return filters.sortOrder === "asc" ? comparison : -comparison;
+    });
+
+    return result;
+  }, [transactions, filters]);
+
   const handleAddTransaction = (transaction: Transaction) => {
     setTransactions((prev) => [...prev, transaction]);
   };
@@ -104,6 +257,15 @@ export default function Home() {
   const handleDeleteTransaction = (id: string) => {
     setTransactions((prev) => prev.filter((t) => t.id !== id));
   };
+
+  const handleEditTransaction = useCallback(
+    (id: string, updates: Partial<Transaction>) => {
+      setTransactions((prev) =>
+        prev.map((t) => (t.id === id ? { ...t, ...updates } : t))
+      );
+    },
+    []
+  );
 
   if (!isLoaded) {
     return <LoadingSkeleton />;
@@ -127,9 +289,11 @@ export default function Home() {
             <CategoryBreakdown transactions={transactions} />
           </div>
           <div className="lg:col-span-2">
+            <TransactionFilters filters={filters} onChange={setFilters} />
             <TransactionList
-              transactions={transactions}
+              transactions={filteredTransactions}
               onDeleteTransaction={handleDeleteTransaction}
+              onEditTransaction={handleEditTransaction}
             />
           </div>
         </div>

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Transaction, CATEGORIES, Category } from "@/types";
+import { Transaction, CATEGORIES, Category, RecurringInterval } from "@/types";
 
 function generateId(): string {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -33,6 +33,9 @@ export default function TransactionForm({
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [recurring, setRecurring] = useState(false);
+  const [recurringInterval, setRecurringInterval] =
+    useState<RecurringInterval>("monthly");
   const [error, setError] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -58,6 +61,7 @@ export default function TransactionForm({
       category: category as Category,
       description: description.trim(),
       date,
+      ...(recurring ? { recurring: true, recurringInterval } : {}),
     };
 
     onAddTransaction(transaction);
@@ -67,6 +71,8 @@ export default function TransactionForm({
     setCategory("");
     setDescription("");
     setDate(new Date().toISOString().split("T")[0]);
+    setRecurring(false);
+    setRecurringInterval("monthly");
     setError("");
   };
 
@@ -84,7 +90,11 @@ export default function TransactionForm({
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Type Toggle */}
-        <div className="flex rounded-lg overflow-hidden border border-zinc-200" role="group" aria-label="Transaction type">
+        <div
+          className="flex rounded-lg overflow-hidden border border-zinc-200"
+          role="group"
+          aria-label="Transaction type"
+        >
           <button
             type="button"
             onClick={() => setType("income")}
@@ -187,6 +197,49 @@ export default function TransactionForm({
             onChange={(e) => setDate(e.target.value)}
             className="w-full px-3 py-2 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-shadow bg-white/80"
           />
+        </div>
+
+        {/* Recurring Toggle */}
+        <div className="space-y-2">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={recurring}
+              onChange={(e) => setRecurring(e.target.checked)}
+              className="h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500"
+            />
+            <span className="text-sm font-medium text-zinc-700">
+              Recurring transaction
+            </span>
+          </label>
+
+          {recurring && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ type: "spring", stiffness: 100, damping: 20 }}
+            >
+              <label
+                htmlFor="recurringInterval"
+                className="block text-sm font-medium text-zinc-700 mb-1"
+              >
+                Frequency
+              </label>
+              <select
+                id="recurringInterval"
+                value={recurringInterval}
+                onChange={(e) =>
+                  setRecurringInterval(e.target.value as RecurringInterval)
+                }
+                className="w-full px-3 py-2 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-shadow bg-white/80"
+              >
+                <option value="weekly">Weekly</option>
+                <option value="biweekly">Biweekly</option>
+                <option value="monthly">Monthly</option>
+              </select>
+            </motion.div>
+          )}
         </div>
 
         {/* Error */}
