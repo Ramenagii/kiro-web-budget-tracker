@@ -3,7 +3,6 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { BudgetProvider } from "@/context/BudgetContext";
 import Navigation from "@/components/Navigation";
-import ToastContainer from "@/components/Toast";
 import { ToastWrapper } from "@/components/ToastWrapper";
 
 const inter = Inter({ subsets: ["latin"] });

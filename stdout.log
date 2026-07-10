@@ -1,0 +1,22 @@
+
+> personal-budget-tracker@0.1.0 dev
+> next dev
+
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3000
+
+ ✓ Starting...
+ ✓ Ready in 2.2s
+ ○ Compiling / ...
+ ✓ Compiled / in 5.8s (1127 modules)
+ GET / 200 in 6132ms
+ ✓ Compiled in 564ms (566 modules)
+ ✓ Compiled /_not-found in 434ms (1107 modules)
+ GET /dashboard 404 in 572ms
+ GET / 200 in 43ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 81ms
+ GET / 200 in 74ms
+ ✓ Compiled /transactions in 499ms (1121 modules)
+ ✓ Compiled /reports in 318ms (1129 modules)
+ ✓ Compiled /settings in 410ms (1139 modules)
+ GET / 200 in 853ms

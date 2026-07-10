@@ -3,5 +3,25 @@
 @tailwind utilities;
 
 body {
-  @apply bg-gray-50 text-gray-900 min-h-screen;
+  @apply bg-zinc-50 text-zinc-950 min-h-[100dvh];
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    theme("colors.zinc.200") 0%,
+    theme("colors.zinc.100") 40%,
+    theme("colors.zinc.200") 80%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
 }
