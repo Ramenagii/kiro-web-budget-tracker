@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Transaction, CATEGORIES, Category } from "@/types";
 
 function generateId(): string {
@@ -70,21 +71,28 @@ export default function TransactionForm({
   };
 
   return (
-    <section aria-label="Add Transaction" className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-      <h2 className="text-lg font-semibold text-gray-800 mb-4">
+    <motion.section
+      aria-label="Add Transaction"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: "spring", stiffness: 100, damping: 20 }}
+      className="rounded-2xl bg-white/60 backdrop-blur-md border border-white/10 shadow-lg shadow-zinc-200/50 p-5"
+      style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.1)" }}
+    >
+      <h2 className="text-lg font-semibold text-zinc-800 mb-4 tracking-tighter">
         Add Transaction
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Type Toggle */}
-        <div className="flex rounded-lg overflow-hidden border border-gray-200" role="group" aria-label="Transaction type">
+        <div className="flex rounded-lg overflow-hidden border border-zinc-200" role="group" aria-label="Transaction type">
           <button
             type="button"
             onClick={() => setType("income")}
             aria-pressed={type === "income"}
             className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
               type === "income"
-                ? "bg-green-500 text-white"
-                : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                ? "bg-emerald-500 text-white"
+                : "bg-zinc-50 text-zinc-600 hover:bg-zinc-100"
             }`}
           >
             Income
@@ -96,7 +104,7 @@ export default function TransactionForm({
             className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
               type === "expense"
                 ? "bg-red-500 text-white"
-                : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                : "bg-zinc-50 text-zinc-600 hover:bg-zinc-100"
             }`}
           >
             Expense
@@ -107,7 +115,7 @@ export default function TransactionForm({
         <div>
           <label
             htmlFor="amount"
-            className="block text-sm font-medium text-gray-700 mb-1"
+            className="block text-sm font-medium text-zinc-700 mb-1"
           >
             Amount ($)
           </label>
@@ -119,7 +127,7 @@ export default function TransactionForm({
             placeholder="0.00"
             step="0.01"
             min="0.01"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+            className="w-full px-3 py-2 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-shadow bg-white/80"
           />
         </div>
 
@@ -127,7 +135,7 @@ export default function TransactionForm({
         <div>
           <label
             htmlFor="category"
-            className="block text-sm font-medium text-gray-700 mb-1"
+            className="block text-sm font-medium text-zinc-700 mb-1"
           >
             Category
           </label>
@@ -135,7 +143,7 @@ export default function TransactionForm({
             id="category"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+            className="w-full px-3 py-2 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-shadow bg-white/80"
           >
             <option value="">Select a category</option>
             {CATEGORIES.map((cat) => (
@@ -150,7 +158,7 @@ export default function TransactionForm({
         <div>
           <label
             htmlFor="description"
-            className="block text-sm font-medium text-gray-700 mb-1"
+            className="block text-sm font-medium text-zinc-700 mb-1"
           >
             Description
           </label>
@@ -160,7 +168,7 @@ export default function TransactionForm({
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Enter a description"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+            className="w-full px-3 py-2 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-shadow bg-white/80"
           />
         </div>
 
@@ -168,7 +176,7 @@ export default function TransactionForm({
         <div>
           <label
             htmlFor="date"
-            className="block text-sm font-medium text-gray-700 mb-1"
+            className="block text-sm font-medium text-zinc-700 mb-1"
           >
             Date
           </label>
@@ -177,7 +185,7 @@ export default function TransactionForm({
             id="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+            className="w-full px-3 py-2 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-shadow bg-white/80"
           />
         </div>
 
@@ -189,13 +197,15 @@ export default function TransactionForm({
         )}
 
         {/* Submit */}
-        <button
+        <motion.button
           type="submit"
-          className="w-full py-2.5 px-4 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors"
+          whileTap={{ scale: 0.98, y: 1 }}
+          transition={{ type: "spring", stiffness: 100, damping: 20 }}
+          className="w-full py-2.5 px-4 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors"
         >
           Add {type === "income" ? "Income" : "Expense"}
-        </button>
+        </motion.button>
       </form>
-    </section>
+    </motion.section>
   );
 }

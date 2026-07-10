@@ -1,10 +1,30 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { Transaction } from "@/types";
 
 interface CategoryBreakdownProps {
   transactions: Transaction[];
 }
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 8 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring", stiffness: 100, damping: 20 },
+  },
+};
 
 export default function CategoryBreakdown({
   transactions,
@@ -13,14 +33,21 @@ export default function CategoryBreakdown({
 
   if (expenses.length === 0) {
     return (
-      <section aria-label="Category Breakdown" className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">
+      <motion.section
+        aria-label="Category Breakdown"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 100, damping: 20 }}
+        className="rounded-2xl bg-white/60 backdrop-blur-md border border-white/10 shadow-lg shadow-zinc-200/50 p-5"
+        style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.1)" }}
+      >
+        <h2 className="text-lg font-semibold text-zinc-800 mb-4 tracking-tighter">
           Expense Breakdown
         </h2>
-        <p className="text-gray-500 text-center py-8">
+        <p className="text-zinc-500 text-center py-8 text-sm leading-relaxed">
           No expenses to display yet.
         </p>
-      </section>
+      </motion.section>
     );
   }
 
@@ -36,48 +63,63 @@ export default function CategoryBreakdown({
   );
 
   const categoryColors: Record<string, string> = {
-    Food: "bg-orange-500",
-    Transport: "bg-blue-500",
-    Entertainment: "bg-purple-500",
-    Bills: "bg-yellow-500",
-    Shopping: "bg-pink-500",
-    Health: "bg-teal-500",
-    Other: "bg-gray-500",
+    Food: "bg-emerald-500",
+    Transport: "bg-slate-500",
+    Entertainment: "bg-teal-500",
+    Bills: "bg-amber-500",
+    Shopping: "bg-zinc-600",
+    Health: "bg-emerald-600",
+    Other: "bg-slate-400",
   };
 
   return (
-    <section aria-label="Category Breakdown" className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-      <h2 className="text-lg font-semibold text-gray-800 mb-4">
+    <motion.section
+      aria-label="Category Breakdown"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: "spring", stiffness: 100, damping: 20 }}
+      className="rounded-2xl bg-white/60 backdrop-blur-md border border-white/10 shadow-lg shadow-zinc-200/50 p-5"
+      style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.1)" }}
+    >
+      <h2 className="text-lg font-semibold text-zinc-800 mb-4 tracking-tighter">
         Expense Breakdown
       </h2>
-      <div className="space-y-3">
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="space-y-3"
+      >
         {sortedCategories.map(([category, amount]) => {
           const percentage = (amount / totalExpenses) * 100;
           return (
-            <div key={category}>
+            <motion.div key={category} variants={itemVariants}>
               <div className="flex justify-between items-center mb-1">
-                <span className="text-sm font-medium text-gray-700">
+                <span className="text-sm font-medium text-zinc-700">
                   {category}
                 </span>
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-zinc-500">
                   ${amount.toFixed(2)} ({percentage.toFixed(1)}%)
                 </span>
               </div>
-              <div className="w-full bg-gray-100 rounded-full h-2.5">
-                <div
+              <div className="w-full bg-zinc-100 rounded-full h-2.5 overflow-hidden">
+                <motion.div
                   className={`h-2.5 rounded-full ${
-                    categoryColors[category] || "bg-gray-500"
+                    categoryColors[category] || "bg-slate-400"
                   }`}
-                  style={{ width: `${percentage}%` }}
-                ></div>
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: percentage / 100 }}
+                  transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.2 }}
+                  style={{ transformOrigin: "left", width: "100%" }}
+                />
               </div>
-            </div>
+            </motion.div>
           );
         })}
-      </div>
-      <div className="mt-4 pt-3 border-t border-gray-100">
+      </motion.div>
+      <div className="mt-4 pt-3 border-t border-zinc-100">
         <div className="flex justify-between items-center">
-          <span className="text-sm font-semibold text-gray-700">
+          <span className="text-sm font-semibold text-zinc-700">
             Total Expenses
           </span>
           <span className="text-sm font-semibold text-red-600">
@@ -85,6 +127,6 @@ export default function CategoryBreakdown({
           </span>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }

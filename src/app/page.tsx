@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { Transaction, CATEGORIES } from "@/types";
 import Header from "@/components/Header";
 import BalanceSummary from "@/components/BalanceSummary";
@@ -22,6 +23,45 @@ function isValidTransaction(entry: unknown): entry is Transaction {
     (CATEGORIES as readonly string[]).includes(obj.category) &&
     typeof obj.description === "string" &&
     typeof obj.date === "string"
+  );
+}
+
+function LoadingSkeleton() {
+  return (
+    <div className="min-h-[100dvh] bg-zinc-50">
+      <div className="border-b border-zinc-200 bg-white/80 backdrop-blur-md">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="h-8 w-48 bg-zinc-200 rounded-lg animate-pulse" />
+          <div className="h-4 w-72 bg-zinc-100 rounded mt-2 animate-pulse" />
+        </div>
+      </div>
+      <main className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          <div className="rounded-2xl bg-white/60 p-6 h-32 animate-pulse">
+            <div className="h-4 w-24 bg-zinc-200 rounded mb-3" />
+            <div className="h-10 w-40 bg-zinc-100 rounded" />
+          </div>
+          <div className="flex flex-col gap-4">
+            <div className="rounded-2xl bg-white/60 p-5 animate-pulse">
+              <div className="h-4 w-24 bg-zinc-200 rounded mb-2" />
+              <div className="h-8 w-32 bg-zinc-100 rounded" />
+            </div>
+            <div className="rounded-2xl bg-white/60 p-5 animate-pulse">
+              <div className="h-4 w-24 bg-zinc-200 rounded mb-2" />
+              <div className="h-8 w-32 bg-zinc-100 rounded" />
+            </div>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-1 space-y-8">
+            <div className="rounded-2xl bg-white/60 p-5 h-96 animate-pulse" />
+          </div>
+          <div className="lg:col-span-2">
+            <div className="rounded-2xl bg-white/60 p-5 h-96 animate-pulse" />
+          </div>
+        </div>
+      </main>
+    </div>
   );
 }
 
@@ -66,17 +106,18 @@ export default function Home() {
   };
 
   if (!isLoaded) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500">Loading...</p>
-      </div>
-    );
+    return <LoadingSkeleton />;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-[100dvh] bg-zinc-50">
       <Header />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <motion.main
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.1 }}
+        className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8"
+      >
         <div className="mb-8">
           <BalanceSummary transactions={transactions} />
         </div>
@@ -92,7 +133,7 @@ export default function Home() {
             />
           </div>
         </div>
-      </main>
+      </motion.main>
     </div>
   );
 }
