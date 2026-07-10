@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BudgetGoal, Category, CATEGORIES, Transaction } from "@/types";
+import { generateId } from "@/lib/utils";
 
 interface BudgetGoalsProps {
   goals: BudgetGoal[];
@@ -95,10 +96,7 @@ export default function BudgetGoals({
     }
 
     const goal: BudgetGoal = {
-      id:
-        typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-          ? crypto.randomUUID()
-          : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 11)}`,
+      id: generateId(),
       category,
       monthlyLimit: limit,
       createdAt: new Date().toISOString(),
