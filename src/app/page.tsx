@@ -1,98 +1,78 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Transaction, CATEGORIES } from "@/types";
+import { motion } from "framer-motion";
+import { useBudget } from "@/context/BudgetContext";
 import Header from "@/components/Header";
 import BalanceSummary from "@/components/BalanceSummary";
-import TransactionForm from "@/components/TransactionForm";
-import TransactionList from "@/components/TransactionList";
 import CategoryBreakdown from "@/components/CategoryBreakdown";
+import Link from "next/link";
 
-const STORAGE_KEY = "budget-tracker-transactions";
-
-function isValidTransaction(entry: unknown): entry is Transaction {
-  if (typeof entry !== "object" || entry === null) return false;
-  const obj = entry as Record<string, unknown>;
-  return (
-    typeof obj.id === "string" &&
-    (obj.type === "income" || obj.type === "expense") &&
-    typeof obj.amount === "number" &&
-    isFinite(obj.amount) &&
-    typeof obj.category === "string" &&
-    (CATEGORIES as readonly string[]).includes(obj.category) &&
-    typeof obj.description === "string" &&
-    typeof obj.date === "string"
-  );
-}
-
-export default function Home() {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  // Load from localStorage on mount
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed: unknown = JSON.parse(stored);
-        if (Array.isArray(parsed)) {
-          const valid = parsed.filter(isValidTransaction);
-          setTransactions(valid);
-        }
-      }
-    } catch (error) {
-      console.error("Error loading transactions from localStorage:", error);
-    }
-    setIsLoaded(true);
-  }, []);
-
-  // Save to localStorage when transactions change
-  useEffect(() => {
-    if (isLoaded) {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions));
-      } catch (error) {
-        console.error("Error saving transactions to localStorage:", error);
-      }
-    }
-  }, [transactions, isLoaded]);
-
-  const handleAddTransaction = (transaction: Transaction) => {
-    setTransactions((prev) => [...prev, transaction]);
-  };
-
-  const handleDeleteTransaction = (id: string) => {
-    setTransactions((prev) => prev.filter((t) => t.id !== id));
-  };
+export default function Dashboard() {
+  const { transactions, budgets, isLoaded } = useBudget();
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500">Loading...</p>
+      <div className="min-h-[100dvh] bg-zinc-50">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-6">
+          <div className="h-8 w-48 rounded-lg animate-shimmer" />
+          <div className="h-4 w-72 rounded mt-2 animate-shimmer" />
+        </div>
+        <main className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="rounded-2xl bg-white/60 p-6 h-32 animate-shimmer" />
+        </main>
       </div>
     );
   }
 
+  const now = new Date();
+  const monthName = now.toLocaleString('default', { month: 'long' });
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-[100dvh] bg-zinc-50">
+      <Header
+        title="Dashboard"
+        subtitle={`${monthName} · ${transactions.length} transaction${transactions.length !== 1 ? 's' : ''}`}
+      />
+      <motion.main
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.1 }}
+        className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8"
+      >
         <div className="mb-8">
           <BalanceSummary transactions={transactions} />
         </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-1 space-y-8">
-            <TransactionForm onAddTransaction={handleAddTransaction} />
-            <CategoryBreakdown transactions={transactions} />
-          </div>
           <div className="lg:col-span-2">
-            <TransactionList
-              transactions={transactions}
-              onDeleteTransaction={handleDeleteTransaction}
-            />
+            <CategoryBreakdown transactions={transactions} budgets={budgets} />
+          </div>
+
+          <div className="space-y-4">
+            <Link
+              href="/transactions"
+              className="block rounded-2xl bg-white/60 backdrop-blur-md border border-white/10 shadow-lg shadow-zinc-200/50 p-5 hover:bg-white/80 transition-colors"
+            >
+              <h3 className="text-sm font-semibold text-zinc-800 tracking-tighter">Manage Transactions</h3>
+              <p className="mt-1 text-xs text-zinc-500">Add, edit, search, and filter your transactions.</p>
+            </Link>
+            <Link
+              href="/reports"
+              className="block rounded-2xl bg-white/60 backdrop-blur-md border border-white/10 shadow-lg shadow-zinc-200/50 p-5 hover:bg-white/80 transition-colors"
+            >
+              <h3 className="text-sm font-semibold text-zinc-800 tracking-tighter">View Reports</h3>
+              <p className="mt-1 text-xs text-zinc-500">Monthly breakdowns and spending insights.</p>
+            </Link>
+            <Link
+              href="/settings"
+              className="block rounded-2xl bg-white/60 backdrop-blur-md border border-white/10 shadow-lg shadow-zinc-200/50 p-5 hover:bg-white/80 transition-colors"
+            >
+              <h3 className="text-sm font-semibold text-zinc-800 tracking-tighter">Settings</h3>
+              <p className="mt-1 text-xs text-zinc-500">Budget limits, export, import, and data management.</p>
+            </Link>
           </div>
         </div>
-      </main>
+      </motion.main>
     </div>
   );
 }
