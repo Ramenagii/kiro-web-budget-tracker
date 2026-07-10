@@ -1,12 +1,3 @@
-export interface Transaction {
-  id: string;
-  type: 'income' | 'expense';
-  amount: number;
-  category: string;
-  description: string;
-  date: string;
-}
-
 export const CATEGORIES = [
   'Food',
   'Transport',
@@ -16,3 +7,14 @@ export const CATEGORIES = [
   'Health',
   'Other',
 ] as const;
+
+export type Category = (typeof CATEGORIES)[number];
+
+export interface Transaction {
+  id: string;
+  type: 'income' | 'expense';
+  amount: number;
+  category: Category;
+  description: string;
+  date: string;
+}

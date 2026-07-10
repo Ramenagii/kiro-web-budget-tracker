@@ -1,7 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { Transaction, CATEGORIES } from "@/types";
+import { Transaction, CATEGORIES, Category } from "@/types";
+
+function generateId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  // Fallback for non-secure contexts using crypto.getRandomValues
+  if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+    const bytes = new Uint8Array(16);
+    crypto.getRandomValues(bytes);
+    bytes[6] = (bytes[6] & 0x0f) | 0x40; // version 4
+    bytes[8] = (bytes[8] & 0x3f) | 0x80; // variant 1
+    const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+  }
+  // Last resort fallback
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 11)}`;
+}
 
 interface TransactionFormProps {
   onAddTransaction: (transaction: Transaction) => void;
@@ -34,10 +51,10 @@ export default function TransactionForm({
     }
 
     const transaction: Transaction = {
-      id: crypto.randomUUID(),
+      id: generateId(),
       type,
       amount: parsedAmount,
-      category,
+      category: category as Category,
       description: description.trim(),
       date,
     };
@@ -59,10 +76,11 @@ export default function TransactionForm({
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Type Toggle */}
-        <div className="flex rounded-lg overflow-hidden border border-gray-200">
+        <div className="flex rounded-lg overflow-hidden border border-gray-200" role="group" aria-label="Transaction type">
           <button
             type="button"
             onClick={() => setType("income")}
+            aria-pressed={type === "income"}
             className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
               type === "income"
                 ? "bg-green-500 text-white"
@@ -74,6 +92,7 @@ export default function TransactionForm({
           <button
             type="button"
             onClick={() => setType("expense")}
+            aria-pressed={type === "expense"}
             className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
               type === "expense"
                 ? "bg-red-500 text-white"

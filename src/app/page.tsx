@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Transaction } from "@/types";
+import { Transaction, CATEGORIES } from "@/types";
 import Header from "@/components/Header";
 import BalanceSummary from "@/components/BalanceSummary";
 import TransactionForm from "@/components/TransactionForm";
@@ -9,6 +9,21 @@ import TransactionList from "@/components/TransactionList";
 import CategoryBreakdown from "@/components/CategoryBreakdown";
 
 const STORAGE_KEY = "budget-tracker-transactions";
+
+function isValidTransaction(entry: unknown): entry is Transaction {
+  if (typeof entry !== "object" || entry === null) return false;
+  const obj = entry as Record<string, unknown>;
+  return (
+    typeof obj.id === "string" &&
+    (obj.type === "income" || obj.type === "expense") &&
+    typeof obj.amount === "number" &&
+    isFinite(obj.amount) &&
+    typeof obj.category === "string" &&
+    (CATEGORIES as readonly string[]).includes(obj.category) &&
+    typeof obj.description === "string" &&
+    typeof obj.date === "string"
+  );
+}
 
 export default function Home() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -19,7 +34,11 @@ export default function Home() {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        setTransactions(JSON.parse(stored));
+        const parsed: unknown = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          const valid = parsed.filter(isValidTransaction);
+          setTransactions(valid);
+        }
       }
     } catch (error) {
       console.error("Error loading transactions from localStorage:", error);
